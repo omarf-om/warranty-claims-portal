@@ -55,18 +55,30 @@
       return;
     }
 
+    const statusBadge = {
+      in_review: '<span class="status-badge status-review">In Review</span>',
+      filed: '<span class="status-badge status-filed">Claim Filed</span>',
+      rejected: '<span class="status-badge status-rejected">Rejected</span>',
+    };
+
     const rows = claims
       .map((c) => {
         const filed = new Date(c.filedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+        const badge = statusBadge[c.status] || statusBadge.in_review;
+        const updateLink =
+          '<a class="update-link" href="update-status.html?claimId=' +
+          encodeURIComponent(c.claimId) +
+          '">Update</a>';
         return (
           "<tr>" +
           '<td class="mono claim-id">' + c.claimId + "</td>" +
           "<td>" + c.unitNumber + "</td>" +
           "<td>" + c.component + "</td>" +
           "<td>" + c.technicianName + "</td>" +
-          "<td>" + c.warrantyStatus + "</td>" +
-          "<td>" + c.approvedBy + "</td>" +
+          "<td>" + badge + "</td>" +
+          "<td>" + (c.approvedBy || "—") + "</td>" +
           "<td>" + filed + "</td>" +
+          "<td>" + updateLink + "</td>" +
           "</tr>"
         );
       })
@@ -76,7 +88,7 @@
       '<div class="items-table-wrap"><table class="posted">' +
       "<thead><tr>" +
       "<th>Claim ID</th><th>Unit #</th><th>Component</th><th>Technician</th>" +
-      "<th>Warranty</th><th>Approved by</th><th>Filed</th>" +
+      "<th>Status</th><th>Approved by</th><th>Filed</th><th></th>" +
       "</tr></thead><tbody>" +
       rows +
       "</tbody></table></div>";

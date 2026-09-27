@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Update claim status — TipTop Trucks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>TipTop Trucks</strong>
+    <span class="sys">Warranty Claims</span>
+  </div>
+  <div class="right">
+    <span class="badge-demo">Demo environment</span>
+    <div class="session-info">
+      <span>Signed in as <strong id="sessionUser">—</strong></span>
+      <a href="#" id="signOutLink">Sign out</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="lookupView">
+    <h1>Update claim status</h1>
+    <p class="subhead">Record the outcome of review for a claim currently in review.</p>
+
+    <div class="card">
+      <h2>Find claim</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="claimIdInput">Claim ID</label>
+          <input id="claimIdInput" type="text" data-kind="mono" placeholder="e.g. WC-2026-2575" />
+        </div>
+      </div>
+      <div class="field-error" id="lookupError">Enter a claim ID.</div>
+      <button type="button" class="primary" id="lookupBtn">Find claim</button>
+    </div>
+
+    <div class="card" id="claimSummaryCard" style="display:none;">
+      <h2>Claim</h2>
+      <div class="recap" id="claimSummary"></div>
+    </div>
+
+    <form id="statusForm" novalidate style="display:none;">
+      <div class="card">
+        <h2>Review outcome</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="newStatus">New status</label>
+            <select id="newStatus" required>
+              <option value="">Select…</option>
+              <option value="filed">Claim Filed (approved)</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="approvedBy">Reviewer</label>
+            <input id="approvedBy" type="text" placeholder="e.g. D. Whitfield" required />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field full">
+            <label for="statusNote">Note <span class="opt">(optional)</span></label>
+            <textarea id="statusNote" placeholder="Reason for rejection, or any comment on approval"></textarea>
+          </div>
+        </div>
+        <div class="field-error" id="statusError">Select a status and enter the reviewer.</div>
+        <button type="submit" class="primary">Update status</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="confirmView" style="display:none;">
+    <div class="confirm-card">
+      <div class="confirm-icon" id="confirmIcon">✓</div>
+      <h2 id="confirmHeading">Status updated</h2>
+      <div class="claim-id" id="claimIdEl">WC-000000</div>
+      <p class="subhead" id="statusMeta" style="margin:0;">—</p>
+      <div class="confirm-actions">
+        <a href="home.html" class="primary">Back to claims</a>
+        <a href="update-status.html" class="secondary">Update another claim</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="session.js"></script>
+<script>
+  requireSession();
+
+  let currentClaim = null;
+
+  function renderClaimSummary(claim) {
+    const el = document.getElementById("claimSummary");
+    el.innerHTML = "";
+    const dl = document.createElement("dl");
+    const rows = [
+      ["Unit #", claim.unitNumber],
+      ["Component", claim.component],
+      ["Technician", claim.technicianName],
+      ["Warranty status", claim.warrantyStatus],
+      ["Current status", claim.status === "in_review" ? "In Review" : claim.status === "filed" ? "Claim Filed" : "Rejected"],
+    ];
+    rows.forEach(([k, v]) => {
+      const dt = document.createElement("dt");
+      dt.textContent = k;
+      const dd = document.createElement("dd");
+      dd.textContent = v;
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+    el.appendChild(dl);
+    document.getElementById("claimSummaryCard").style.display = "";
+  }
+
+  function doLookup() {
+    const claimId = document.getElementById("claimIdInput").value.trim();
+    const errorEl = document.getElementById("lookupError");
+    if (!claimId) {
+      errorEl.classList.add("show");
+      return;
+    }
+    const claim = getClaim(claimId);
+    if (!claim) {
+      errorEl.textContent = "No claim found with ID " + claimId + ".";
+      errorEl.classList.add("show");
+      document.getElementById("claimSummaryCard").style.display = "none";
+      document.getElementById("statusForm").style.display = "none";
+      currentClaim = null;
+      return;
+    }
+    errorEl.classList.remove("show");
+    currentClaim = claim;
+    renderClaimSummary(claim);
+    document.getElementById("statusForm").style.display = "";
+  }
+
+  document.getElementById("lookupBtn").addEventListener("click", doLookup);
+
+  // Support deep-linking: update-status.html?claimId=WC-2026-2575
+  const params = new URLSearchParams(window.location.search);
+  const prefillId = params.get("claimId");
+  if (prefillId) {
+    document.getElementById("claimIdInput").value = prefillId;
+    doLookup();
+  }
+
+  document.getElementById("statusForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!currentClaim) return;
+
+    const newStatus = document.getElementById("newStatus").value;
+    const approvedBy = document.getElementById("approvedBy").value.trim();
+    const note = document.getElementById("statusNote").value.trim();
+    const errorEl = document.getElementById("statusError");
+
+    if (!newStatus || !approvedBy) {
+      errorEl.classList.add("show");
+      return;
+    }
+    errorEl.classList.remove("show");
+
+    const updated = updateClaimStatus(currentClaim.claimId, { status: newStatus, approvedBy, note });
+
+    document.getElementById("lookupView").style.display = "none";
+    document.getElementById("confirmView").style.display = "block";
+    document.getElementById("claimIdEl").textContent = updated.claimId;
+    document.getElementById("confirmIcon").textContent = newStatus === "filed" ? "✓" : "✕";
+    document.getElementById("confirmHeading").textContent =
+      newStatus === "filed" ? "Claim filed" : "Claim rejected";
+    document.getElementById("statusMeta").innerHTML =
+      (newStatus === "filed"
+        ? '<span class="status-badge status-filed">Claim Filed</span>'
+        : '<span class="status-badge status-rejected">Rejected</span>') +
+      " — reviewed by " + approvedBy;
+  });
+</script>
+
+</body>
+</html>

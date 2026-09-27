@@ -119,16 +119,12 @@
       </div>
 
       <div class="card">
-        <h2>Warranty &amp; approval</h2>
-        <p class="subhead" style="margin-bottom:1rem;">Confirm eligibility and sign-off before this claim can be filed.</p>
+        <h2>Warranty eligibility</h2>
+        <p class="subhead" style="margin-bottom:1rem;">Result of the warranty lookup for this unit and component.</p>
         <div class="field-row">
           <div class="field">
             <label for="warrantyStatus">Warranty status</label>
             <input id="warrantyStatus" name="warrantyStatus" type="text" placeholder="e.g. Active (exp. 2029-03)" required />
-          </div>
-          <div class="field">
-            <label for="approvedBy">Approved by</label>
-            <input id="approvedBy" name="approvedBy" type="text" placeholder="Reviewer name or approval reference" required />
           </div>
         </div>
       </div>
@@ -137,9 +133,10 @@
 
   <div id="confirmView">
     <div class="confirm-card">
-      <div class="confirm-icon">✓</div>
-      <h2>Claim filed</h2>
+      <div class="confirm-icon">⏳</div>
+      <h2>Submitted for review</h2>
       <div class="claim-id" id="claimIdEl">WC-000000</div>
+      <p class="subhead" style="margin: 0 0 0.25rem;"><span class="status-badge status-review">In Review</span></p>
       <p class="subhead" id="filedMeta" style="margin:0;">—</p>
       <div class="recap" id="recap"></div>
       <div class="confirm-actions">
@@ -230,7 +227,6 @@
     const correctiveAction = document.getElementById("correctiveAction").value.trim();
     const laborHours = document.getElementById("laborHours").value;
     const warrantyStatus = document.getElementById("warrantyStatus").value.trim();
-    const approvedBy = document.getElementById("approvedBy").value.trim();
 
     const parts = [];
     partsBody.querySelectorAll(".part-row").forEach((row) => {
@@ -250,7 +246,7 @@
 
     document.getElementById("claimIdEl").textContent = claimId;
     document.getElementById("filedMeta").textContent =
-      "Filed " + new Date(filedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+      "Submitted " + new Date(filedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 
     const recap = document.getElementById("recap");
     recap.innerHTML = "";
@@ -261,7 +257,6 @@
       ["Component", component],
       ["Failure date", failureDate],
       ["Warranty status", warrantyStatus],
-      ["Approved by", approvedBy],
       ["Parts listed", String(parts.length)],
     ];
     rows.forEach(([k, v]) => {
@@ -288,7 +283,8 @@
       laborHours,
       parts,
       warrantyStatus,
-      approvedBy,
+      status: "in_review",
+      approvedBy: null,
       filedAt,
     });
 

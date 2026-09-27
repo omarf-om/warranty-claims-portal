@@ -52,3 +52,20 @@ function addClaim(record) {
   list.unshift(record);
   localStorage.setItem(CLAIMS_KEY, JSON.stringify(list));
 }
+
+function getClaim(claimId) {
+  return getClaims().find((c) => c.claimId === claimId) || null;
+}
+
+// Returns the updated claim, or null if claimId wasn't found.
+function updateClaimStatus(claimId, { status, approvedBy, note }) {
+  const list = getClaims();
+  const claim = list.find((c) => c.claimId === claimId);
+  if (!claim) return null;
+  claim.status = status;
+  claim.statusUpdatedAt = new Date().toISOString();
+  if (approvedBy) claim.approvedBy = approvedBy;
+  if (note) claim.statusNote = note;
+  localStorage.setItem(CLAIMS_KEY, JSON.stringify(list));
+  return claim;
+}
