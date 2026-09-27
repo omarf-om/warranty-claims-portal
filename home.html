@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Warranty Claims — Volvo Trucks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Volvo Trucks</strong>
+    <span class="sys">Warranty Claims</span>
+  </div>
+  <div class="right">
+    <span class="badge-demo">Demo environment</span>
+    <div class="session-info">
+      <span>Signed in as <strong id="sessionUser">—</strong></span>
+      <a href="#" id="signOutLink">Sign out</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="hero-row">
+    <div>
+      <h1>Warranty claims</h1>
+      <p class="subhead">Filed claims for Meridian Freight's Volvo fleet, with warranty and approval status.</p>
+    </div>
+    <a href="new-claim.html" class="primary">+ File warranty claim</a>
+  </div>
+
+  <div class="card">
+    <h2>Filed claims</h2>
+    <div id="listWrap"></div>
+  </div>
+</main>
+
+<script src="session.js"></script>
+<script>
+  requireSession();
+
+  function render() {
+    const claims = getClaims();
+    const wrap = document.getElementById("listWrap");
+
+    if (claims.length === 0) {
+      wrap.innerHTML =
+        '<div class="empty-state">' +
+        "<p>No claims filed yet.</p>" +
+        '<a href="new-claim.html" class="primary">+ File warranty claim</a>' +
+        "</div>";
+      return;
+    }
+
+    const rows = claims
+      .map((c) => {
+        const filed = new Date(c.filedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+        return (
+          "<tr>" +
+          '<td class="mono claim-id">' + c.claimId + "</td>" +
+          "<td>" + c.unitNumber + "</td>" +
+          "<td>" + c.component + "</td>" +
+          "<td>" + c.technicianName + "</td>" +
+          "<td>" + c.warrantyStatus + "</td>" +
+          "<td>" + c.approvedBy + "</td>" +
+          "<td>" + filed + "</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+
+    document.getElementById("listWrap").innerHTML =
+      '<div class="items-table-wrap"><table class="posted">' +
+      "<thead><tr>" +
+      "<th>Claim ID</th><th>Unit #</th><th>Component</th><th>Technician</th>" +
+      "<th>Warranty</th><th>Approved by</th><th>Filed</th>" +
+      "</tr></thead><tbody>" +
+      rows +
+      "</tbody></table></div>";
+  }
+
+  render();
+</script>
+
+</body>
+</html>

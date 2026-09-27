@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sign in — Volvo Trucks Warranty Claims</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Volvo Trucks</strong>
+    <span class="sys">Warranty Claims</span>
+  </div>
+  <span class="badge-demo">Demo environment</span>
+</div>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <h1>Sign in</h1>
+    <p class="subhead">Meridian Freight — Fleet Maintenance</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="e.g. m.reyes" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <div class="field-error" id="loginError">Enter a username and password to continue.</div>
+      <button type="submit" class="primary">Sign in</button>
+    </form>
+
+    <div class="login-hint">Demo environment — any username and password are accepted.</div>
+  </div>
+</div>
+
+<script src="session.js"></script>
+<script>
+  document.getElementById("loginForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorEl = document.getElementById("loginError");
+
+    if (!username || !password) {
+      errorEl.classList.add("show");
+      return;
+    }
+
+    errorEl.classList.remove("show");
+    saveSession(username);
+    window.location.href = "home.html";
+  });
+
+  if (getSession()) {
+    window.location.href = "home.html";
+  }
+</script>
+
+</body>
+</html>
