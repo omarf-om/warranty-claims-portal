@@ -67,6 +67,10 @@
             <input id="failureDate" name="failureDate" type="date" required />
           </div>
           <div class="field">
+            <label for="repairDate">Repair date</label>
+            <input id="repairDate" name="repairDate" type="date" required />
+          </div>
+          <div class="field">
             <label for="mileage">Mileage at failure <span class="opt">(optional)</span></label>
             <input id="mileage" name="mileage" type="number" min="0" data-kind="mono" placeholder="e.g. 182400" />
           </div>
@@ -221,6 +225,7 @@
     const vin = document.getElementById("vin").value.trim();
     const component = document.getElementById("component").value;
     const failureDate = document.getElementById("failureDate").value;
+    const repairDate = document.getElementById("repairDate").value;
     const mileage = document.getElementById("mileage").value;
     const failureDescription = document.getElementById("failureDescription").value.trim();
     const rootCause = document.getElementById("rootCause").value.trim();
@@ -256,6 +261,7 @@
       ["Unit #", unitNumber],
       ["Component", component],
       ["Failure date", failureDate],
+      ["Repair date", repairDate],
       ["Warranty status", warrantyStatus],
       ["Parts listed", String(parts.length)],
     ];
@@ -276,6 +282,7 @@
       vin,
       component,
       failureDate,
+      repairDate,
       mileage,
       failureDescription,
       rootCause,
