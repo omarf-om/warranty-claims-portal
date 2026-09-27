@@ -1,5 +1,5 @@
-const SESSION_KEY = "volvoWarrantySession";
-const CLAIMS_KEY = "volvoWarrantyClaims";
+const SESSION_KEY = "tiptopWarrantySession";
+const CLAIMS_KEY = "tiptopWarrantyClaims";
 
 function getSession() {
   try {
